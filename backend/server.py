@@ -26,7 +26,7 @@ finger_count = 0
 # Finger counting delay variables
 last_finger_count = 0
 finger_count_delay = 0
-stable_count_frames = 3
+stable_count_frames = 0  # Instant response - no delay
 
 # Initialize MediaPipe
 try:
@@ -66,6 +66,8 @@ def draw_on_canvas(image, finger_pos, finger_mcp, is_eraser=False):
     if is_eraser:
         # Erase area around finger position
         cv2.circle(drawing_canvas, finger_mcp, eraser_size, (0, 0, 0), -1)
+        last_pos = None
+        
     else:
         # Draw at finger position
         if last_pos is not None:
@@ -144,6 +146,7 @@ def count_fingers_improved(landmarks):
 def process_hand_landmarks(landmarks, frame_shape):
     """Process hand landmarks and update global state"""
     global current_mode, finger_count, color, last_finger_count, finger_count_delay
+    global last_pos
     
     current_finger_count = count_fingers_improved(landmarks)
     
@@ -168,17 +171,25 @@ def process_hand_landmarks(landmarks, frame_shape):
             current_mode = 'erasing'
         elif finger_count == 2:
             current_mode = 'color-change'
-            color = (0, 0, 255)  # Red
+            color = (0, 255, 0)  # Green
+            last_pos = None
+            
         elif finger_count == 3:
             current_mode = 'color-change'
-            color = (0, 255, 0)  # Green
+            color = (255, 255, 255)  # white
+            last_pos = None
         elif finger_count == 4:
             current_mode = 'color-change'
-            color = (255, 0, 0)  # Blue
+            color = (243, 150, 33)  # True vibrant blue (BGR)
+            last_pos = None
         else:
             current_mode = 'idle'
-            global last_pos
             last_pos = None
+    
+    # IMMEDIATELY stop drawing when fingers drop to 0
+    if current_finger_count == 0:
+
+        last_pos = None
     
     print(f"DEBUG: Fingers={current_finger_count}, Mode={current_mode}, Color={get_color_name()}")
 
@@ -187,10 +198,10 @@ def get_color_name():
     global color
     if color == (0, 255, 0):
         return 'green'
-    elif color == (0, 0, 255):
-        return 'red'
-    elif color == (255, 0, 0):
-        return 'blue'
+    elif color == (255, 255, 255):
+        return 'white'  # Fixed: was returning 'red' incorrectly
+    elif color == (243, 150, 33):
+        return 'vibrant blue'
     else:
         return 'unknown'
 

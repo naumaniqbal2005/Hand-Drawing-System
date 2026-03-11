@@ -61,6 +61,22 @@ function App() {
     }
   };
 
+  // Get actual color for display
+  const getActualColor = () => {
+    switch (currentColor) {
+      case 'green':
+        return '#4CAF50';
+      case 'white':
+        return '#FFFFFF';
+      case 'light blue':
+        return '#42A5F5'; // More vibrant blue
+      case 'vibrant blue':
+        return '#2196F3'; // True vibrant blue
+      default:
+        return '#9E9E9E';
+    }
+  };
+
   return (
     <div className="app">
       <header className="app-header">
@@ -82,9 +98,22 @@ function App() {
             </div>
             <div className="status-item">
               <span className="label">Current Color:</span>
-              <span className="value" style={{ color: currentColor }}>
+              <span className="value" style={{ color: getActualColor() }}>
                 {currentColor}
               </span>
+              <div 
+                className="color-preview" 
+                style={{ 
+                  backgroundColor: getActualColor(),
+                  width: '20px',
+                  height: '20px',
+                  borderRadius: '4px',
+                  border: '1px solid #ddd',
+                  marginLeft: '8px',
+                  display: 'inline-block',
+                  verticalAlign: 'middle'
+                }}
+              />
             </div>
             <div className="status-item">
               <span className="label">Current Mode:</span>
